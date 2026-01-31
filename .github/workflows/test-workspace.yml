@@ -1,0 +1,31 @@
+name: Workspace Path
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test-workspace:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Print workspace path
+        run: |
+          echo "Original workspace path: ${{ github.workspace }}"
+      
+      - name: Convert Windows path to Unix path and store in environment variable
+        shell: bash
+        run: |
+          echo "Original: ${{ github.workspace }}"
+          UNIX_PATH=$(echo "${{ github.workspace }}" | tr '\\' '/')
+          echo "Unix path: $UNIX_PATH"
+          echo "GITHUB_WORKSPACE=$UNIX_PATH" >> $GITHUB_ENV
+        
+      - name: Use the Unix path
+        run: |
+          echo "env.GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}"
+
