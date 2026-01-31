@@ -31,11 +31,13 @@ jobs:
       
       - name: Set Unix path for Linux
         if: matrix.os == 'ubuntu-latest'
+        shell: bash
         run: |
           echo "Original: ${{ github.workspace }}"
           echo "GITHUB_WORKSPACE=${{ github.workspace }}" >> $GITHUB_ENV
       
       - name: Verify the workspace path is not empty
+        shell: bash
         run: |
           if [ -z "$GITHUB_WORKSPACE" ]; then
             echo "GITHUB_WORKSPACE is empty"
