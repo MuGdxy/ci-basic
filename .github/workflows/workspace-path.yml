@@ -6,9 +6,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-workspace:
-    runs-on: windows-latest
-    
+  workspace-path:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,14 +21,25 @@ jobs:
           echo "Original workspace path: ${{ github.workspace }}"
       
       - name: Convert Windows path to Unix path and store in environment variable
+        if: matrix.os == 'windows-latest'
         shell: bash
         run: |
           echo "Original: ${{ github.workspace }}"
           UNIX_PATH=$(echo "${{ github.workspace }}" | tr '\\' '/')
           echo "Unix path: $UNIX_PATH"
           echo "GITHUB_WORKSPACE=$UNIX_PATH" >> $GITHUB_ENV
-        
-      - name: Use the Unix path
+      
+      - name: Set Unix path for Linux
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          echo "env.GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}"
+          echo "Original: ${{ github.workspace }}"
+          echo "GITHUB_WORKSPACE=${{ github.workspace }}" >> $GITHUB_ENV
+      
+      - name: Verify the workspace path is not empty
+        run: |
+          if [ -z "$GITHUB_WORKSPACE" ]; then
+            echo "GITHUB_WORKSPACE is empty"
+            exit 1
+          fi
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
 
